@@ -2,7 +2,7 @@
 
 There are 2 solutions for the assignment, involving implementing 2 different mechanism types.
 
-**Kernel Module:**
+**Kernel Module (xor_binfmt_module.c + encrypt_and_execute.c):**
 
 I created a kernel module that provides a custom binary format that receives a XOR encrypted ELF.
 The module is registered in the kernel and then added to the registered binary formats list.
@@ -20,7 +20,7 @@ The decryption process occurs in-memory (and reflects the changes directly to th
 Next step includes writing all the decrypted data into the original file, resulting in turning this file to a valid
 ELF file. Since it is now a valid ELF file, final steps directly invokes the load_elf_binary() of the ELF loader.
 
-**Binfmt_misc Handler:**
+**Binfmt_misc Handler (binfmt_misc_decryptor):**
 
 Another mechanism for handling non-native binary formats is using 'binfmt_misc'. 
 
