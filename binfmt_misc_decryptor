@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <string.h>
+
+#define ELF_MAGIC_BYTES "\x7f\x45\x4c\x46"
+#define ELF_MAGIC_SIZE 4
+#define XOR_KEY 'A'
+
+// Function to XOR decrypt the binary content
+void xor_decrypt(unsigned char *data, size_t size) {
+    for (size_t i = 0; i < size; ++i) {
+        data[i] ^= XOR_KEY;
+    }
+}
+
+int main(int argc, char *argv[]) {
+    // Check if filename is provided as argument
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <encrypted_binary>\n", argv[0]);
+        return 1;
+    }
+
+    // Open the encrypted binary file
+    int fd = open(argv[1], O_RDONLY);
+    if (fd == -1) {
+        perror("Failed to open file");
+        return 1;
+    }
+
+    // Read the first MAGIC_NUMBER_SIZE bytes to check for ELF magic numbers
+    unsigned char magic[ELF_MAGIC_SIZE];
+    if (read(fd, magic, ELF_MAGIC_SIZE) != ELF_MAGIC_SIZE) {
+        perror("Failed to read file");
+        close(fd);
+        return 1;
+    }
+
+    // Check if the file has ELF magic numbers
+    if (memcmp(magic, ELF_MAGIC_BYTES, ELF_MAGIC_SIZE) != 0) {
+        perror("Invalid ELF file");
+        close(fd);
+        return 1;
+    }
+
+    // Get the size of the file
+    struct stat st;
+    if (fstat(fd, &st) == -1) {
+        perror("Failed to get file size");
+        close(fd);
+        return 1;
+    }
+    size_t size = st.st_size;
+
+    // Allocate memory for the decrypted binary content
+    unsigned char *data = (unsigned char *)malloc(size);
+    if (read(fd, data, size) != size) {
+        perror("Failed to read file");
+        close(fd);
+        free(data);
+        return 1;
+    }
+    close(fd);
+
+    // Decrypt the binary content
+    xor_decrypt(data, size);
+
+    // Execute the decrypted ELF
+    execvp(argv[1], argv + 1);
+    perror("Failed to exec");
+    free(data);
+    return 1;
+}
