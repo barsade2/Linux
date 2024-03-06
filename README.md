@@ -2,7 +2,8 @@
 
 There are 2 solutions for the assignment, involving implementing 2 different mechanism types.
 
-1. I created a kernel module that provides a custom binary format that receives a XOR encrypted ELF.
+**Kernel Module:**
+I created a kernel module that provides a custom binary format that receives a XOR encrypted ELF.
 The module is registered in the kernel and then added to the registered binary formats list.
 
 When the search_binary_handler() invokes my binary format, the module decrypts the 4 first bytes (magic bytes)
@@ -15,6 +16,7 @@ The decryption process occurs in-memory (and reflects the changes directly to th
 Next step includes writing all the decrypted data into the original file, resulting in turning this file to a valid
 ELF file. Since it is now a valid ELF file, final steps directly invokes the load_elf_binary() of the ELF loader.
 
+**Binfmt_misc Handler:**
 2. Another mechanism for handling non-native binary formats is using 'binfmt_misc'. 
 I developed a custom handler (for XOR encrypted ELF), mounted the binfmt_misc, and registered the new handler
 based on the magic numbers (\x7f\x45\x4c\x46 encrypted with XOR).
