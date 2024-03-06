@@ -22,7 +22,7 @@ ELF file. Since it is now a valid ELF file, final steps directly invokes the loa
 
 **Binfmt_misc Handler:**
 
-2. Another mechanism for handling non-native binary formats is using 'binfmt_misc'. 
+Another mechanism for handling non-native binary formats is using 'binfmt_misc'. 
 
 I developed a custom handler (for XOR encrypted ELF), mounted the binfmt_misc, and registered the new handler
 based on the magic numbers (\x7f\x45\x4c\x46 encrypted with XOR).
